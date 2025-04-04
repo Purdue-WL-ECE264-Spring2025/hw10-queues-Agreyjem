@@ -19,6 +19,12 @@ struct game_state dequeue(struct queue *q) {
 	return state;
 }
 
+void free_queue(struct queue *q){
+	while(q->data.head != NULL){
+		struct game_state *tempState =(struct game_state *)remove_from_head(&(q->data));
+		free(tempState);
+	}
+}
 
 //outside function to check if the state is the goal
 bool is_goal(struct game_state state){
@@ -69,6 +75,7 @@ int number_of_moves(struct game_state start) {
 	visited[visit] = malloc(sizeof(struct game_state));
 	*(visited[visit]) = start;
 	visit++;
+	int result = -1;
 
 	while(q.data.head != NULL){
 		struct game_state current = dequeue(&q);
@@ -102,16 +109,8 @@ int number_of_moves(struct game_state start) {
 			}
 			if(newState){
 				if(is_goal(next)){
-					int result = next.num_steps;
-					for(i = 0; i < visit; i++){
-						free(visited[i]);
-					}
-					free(visited);
-					while(q.data.head != NULL){
-						struct game_state *tempState = (struct game_state *)remove_from_head(&(q.data));
-						free(tempState);
-					}
-					return result;
+					result = next.num_steps;
+					goto cleanup;
 				}
 				enqueue(&q, next);
 				visited[visit] = malloc(sizeof(struct game_state));
@@ -123,10 +122,14 @@ int number_of_moves(struct game_state start) {
 
 		
 	}
+cleanup:
 	int j;
 	for(j = 0; j < visit; j++){
 		free(visited[j]);
 
 	}
 	free(visited);
-	return -1; }
+	free_queue(&q);
+
+	return result;
+}

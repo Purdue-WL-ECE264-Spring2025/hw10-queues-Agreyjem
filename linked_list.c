@@ -23,10 +23,10 @@ void insert_at_head(struct linked_list *list, size_t value) {
 
 void insert_at_tail(struct linked_list *list, size_t value) {
         struct list_node *temp = (struct list_node*)malloc(sizeof(struct list_node));
-        temp->next = (struct list_node*)malloc(sizeof(struct list_node));
         if(temp == NULL){
                 return;
         }
+
 	temp->value = value;
 	temp->next = NULL;
 
@@ -67,15 +67,18 @@ size_t remove_from_tail(struct linked_list *list) {
 		temp= temp->next;
 	}
 	size_t val = temp->next->value;
+	free(temp->next);
 	temp->next = NULL;
 	return val; }
 
 void free_list(struct linked_list list) {
-	struct linked_list temp ;
-	while(list.head != NULL){
-		temp = list;
-		list.head = list.head->next;
-		free(temp.head);
+	struct linked_list *current  = &list;
+	struct list_node *next;
+
+	while(current != NULL){
+		next = current->head->next;
+		free(current->head);
+		current->head= next;
 	}
 
 }
